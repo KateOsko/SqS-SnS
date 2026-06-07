@@ -10,6 +10,13 @@ pipeline {
             }
         }
 
+        stage('Check AWS CLI') {
+            steps {
+                sh 'which aws'
+                sh 'aws --version'
+            }
+        }
+
         stage('Check AWS') {
             steps {
                 withCredentials([
