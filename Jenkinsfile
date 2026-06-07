@@ -22,7 +22,7 @@ pipeline {
                     string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
-                    sh 'aws sts get-caller-identity'
+                    sh '/opt/homebrew/bin/aws sts get-caller-identity'
                 }
             }
         }
