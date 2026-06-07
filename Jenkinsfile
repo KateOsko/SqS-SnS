@@ -12,8 +12,7 @@ pipeline {
 
         stage('Check AWS CLI') {
             steps {
-                sh 'which aws'
-                sh 'aws --version'
+                sh '/opt/homebrew/bin/aws --version'
             }
         }
 
