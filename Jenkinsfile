@@ -2,18 +2,31 @@ pipeline {
     agent any
 
     stages {
+        stage('Check Environment') {
+            steps {
+                sh 'echo AWS_REGION=$AWS_REGION'
+                sh 'echo SQS_QUEUE_URL=$SQS_QUEUE_URL'
+                sh 'echo SNS_TOPIC_ARN=$SNS_TOPIC_ARN'
+            }
+        }
+
+        stage('Check AWS') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    sh 'aws sts get-caller-identity'
+                }
+            }
+        }
+
         stage('Run AWS Tests') {
             steps {
-                dir('/Users/ekaterinaostapenko/IdeaProjects/SqS-SnS') {
-
-                    script {
-                        def props = readProperties file: '.env'
-
-                        env.AWS_ACCESS_KEY_ID = props.AWS_ACCESS_KEY_ID
-                        env.AWS_SECRET_ACCESS_KEY = props.AWS_SECRET_ACCESS_KEY
-                        env.AWS_REGION = props.AWS_REGION
-                    }
-
+                withCredentials([
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
                     sh './run-aws-tests.sh --info'
                 }
             }
@@ -22,7 +35,7 @@ pipeline {
 
     post {
         always {
-            junit 'build/test-results/test/*.xml'
+            junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
         }
     }
 }
